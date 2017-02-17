@@ -62,7 +62,7 @@ void MeshHB::Draw(Shader shader)
 														// if type is texture_diffuse and first then
 														// material.texture_diffuse1
 														// cannot explain why i is there though
-		glUniform1f(glGetUniformLocation(shader.Program, ("material." + name + number).c_str()), i);
+		glUniform1f(glGetUniformLocation(shader.program, ("material." + name + number).c_str()), i);
 		glBindTexture(GL_TEXTURE_2D, this->textures[i].id);
 	}
 	glActiveTexture(GL_TEXTURE0);

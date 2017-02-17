@@ -12,21 +12,29 @@
 #include <glm\gtc\matrix_transform.hpp>
 #include <glm\gtc\type_ptr.hpp>
 
+// Includes by Jakob Månsson
 #include <JM\camJM.h>
 #include <JM\shaderJM.h>
 #include <JM\meshJM.h>
 #include <JM\modelJM.h>
+
+// Includes by Henry Bergström
 #include <HB\shaderHB.h>
+#include <HB\modelHB.h>
+#include <HB\meshHB.h>
 
 // Paths 
-const GLchar* vsPath = "shaders/JM/VertexShader.glsl";
-const GLchar* gsPath = "shaders/JM/GeometryShader.glsl";
-const GLchar* fsPath = "shaders/JM/FragmentShader.glsl";
+const GLchar* def_geo_vsPath = "shaders/HB/deferred_geoPass_vs.glsl";
+const GLchar* def_geo_fsPath = "shaders/HB/deferred_geoPass_frag.glsl";
+const GLchar* def_light_vsPath = "shaders/HB/deferred_lightPass_vs.glsl";
+const GLchar* def_light_fsPath = "shaders/HB/deferred_lightPass_frag.glsl";;
+const GLchar* gsPath = "shaders/HB/GeometryShader.glsl";
+const GLchar* fsPath = "shaders/HB/FragmentShader.glsl";
 
-// namespace
+// Namespace
 using namespace std;
 
-//Constants
+// Constants
 const unsigned int WINDOW_WIDTH = 960;  //640;
 const unsigned int WINDOW_HEIGHT = 720; //480;
 
@@ -55,18 +63,12 @@ void createTestVertices(JMshader* shaderPro);
 void createTestMesh();
 void key_callback(GLFWwindow* winPtr, int key, int scan, int act, int mode);
 void mouse_callback(GLFWwindow* winPtr, double xPos, double yPos);
+void createGBuffer();
 
 int main() {
 	//Variables
 	GLFWwindow* windowPtr = NULL;
 
-	glewExperimental = GL_TRUE;
-	glewInit();
-
-	if (!glfwInit()) {
-		fprintf(stderr, "ERROR: GLFW3 could not start\n");
-		return 1;
-	}
 
 	//create the matrices
 	glm::mat4 world;				//NTS: All matrices start as identity matrices
@@ -91,7 +93,10 @@ int main() {
 
 	//Start a GL-context with the help of GLFW
 	//If start-up fails write a message to stderr and end the program
-
+	if (!glfwInit()) {
+		fprintf(stderr, "ERROR: GLFW3 could not start\n");
+		return 1;
+	}
 
 	//Create a window. If the window isn't created properly the program doesn't run
 	windowPtr = createWindow();
@@ -108,17 +113,26 @@ int main() {
 		glfwSetCursorPosCallback(windowPtr, mouse_callback);		//This sets the basic mouse_callback function 'mouse_callback' as default.
 
 																	//initiate GLEW
+		glewExperimental = GL_TRUE;
+		GLenum err = glewInit();
+		if (err != GLEW_OK)
+		{
+			cout << "ERROR: GLEW INIT IS NOT OK" << endl;
+		}
 
-				//create shaders
-		JMshader baseShader(vsPath, gsPath, fsPath);				//Creates an object of the JMshader class and send in the .glsl-files for the shaders
-		//Shader baseShader(vsPath, gsPath, fsPath);
 
-																										//create vertices
-																													//createTestVertices(&baseShader);	//Updated to recieve a pointer to an object from the JMshader class
+		//create shaders
+		//JMshader baseShader(vsPath, gsPath, fsPath);				//Creates an object of the JMshader class and send in the .glsl-files for the shaders
+		Shader geoShader(def_geo_vsPath, def_geo_fsPath);
+		Shader lightShader(def_light_vsPath, def_light_fsPath);
 
-																													//create model
-																													//JMmodel testModel("OBJ_Files/cube_green_phong_12_tris_QUADS.obj");
-		//JMmodel testModel("resoures/nanosuit/nanosuit.obj");
+		//create vertices
+		//createTestVertices(&baseShader);	//Updated to recieve a pointer to an object from the JMshader class
+
+		//create model
+		//JMmodel testModel("OBJ_Files/cube_green_phong_12_tris_QUADS.obj");
+		//JMmodel testModel("resources/nanosuit/nanosuit.obj");
+		ModelHB testModel("resources/nanosuit/nanosuit.obj");
 
 		//enable depth testing and use the lesser value as "closer to the camera"
 		glEnable(GL_DEPTH_TEST);
@@ -150,7 +164,7 @@ int main() {
 			glUniformMatrix4fv(uniPerspective, 1, GL_FALSE, glm::value_ptr(perspective));
 
 			//render
-			glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
+			glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			baseShader.useProgram();
 			glBindVertexArray(vertexAtt);
@@ -286,4 +300,57 @@ void mouse_callback(GLFWwindow* winPtr, double xPos, double yPos) {
 
 }
 
+void createGBuffer()
+{
+	// CREATE G-Buffer
+	// One texture for every attribute
+	// 3 textures:
+	// 1 - Position
+	// 2 - Color
+	// 3 - Normals
+	// Set up G-Buffer
+	// 3 textures:
+	// 1. Positions (RGB)
+	// 2. Color (RGB) + Specular (A)
+	// 3. Normals (RGB) 
+	GLuint gBuffer;
+	glGenFramebuffers(1, &gBuffer);
+	glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
+	GLuint gPosition, gNormal, gAlbedoSpec;
+	// - Position color buffer
+	glGenTextures(1, &gPosition);
+	glBindTexture(GL_TEXTURE_2D, gPosition);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, WINDOW_WIDTH, WINDOW_HEIGHT, 0, GL_RGB, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gPosition, 0);
+	// - Normal color buffer
+	glGenTextures(1, &gNormal);
+	glBindTexture(GL_TEXTURE_2D, gNormal);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, WINDOW_WIDTH, WINDOW_HEIGHT, 0, GL_RGB, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, gNormal, 0);
+	// - Color + Specular color buffer
+	glGenTextures(1, &gAlbedoSpec);
+	glBindTexture(GL_TEXTURE_2D, gAlbedoSpec);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, WINDOW_WIDTH, WINDOW_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, gAlbedoSpec, 0);
+	// - Tell OpenGL which color attachments we'll use (of this framebuffer) for rendering 
+	GLuint attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
+	glDrawBuffers(3, attachments);
+	// - Create and attach depth buffer (renderbuffer)
+	GLuint rboDepth;
+	glGenRenderbuffers(1, &rboDepth);
+	glBindRenderbuffer(GL_RENDERBUFFER, rboDepth);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, WINDOW_WIDTH, WINDOW_HEIGHT);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboDepth);
+	// - Finally check if framebuffer is complete
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		std::cout << "Framebuffer not complete!" << std::endl;
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+}

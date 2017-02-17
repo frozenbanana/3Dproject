@@ -1,4 +1,4 @@
-#include "Camera.h"
+#include <HB/cameraHB.h>
 // Constructor with vectors
 	void Camera::updateCameraVectors()
 	{

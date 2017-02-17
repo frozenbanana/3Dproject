@@ -1,15 +1,15 @@
 #pragma once
 #include <vector>
 #include <iostream>
-#include "MeshHB.h"
+#include <HB\meshHB.h>
 
 // asimp
-#include <Importer.hpp>
-#include <scene.h>
-#include <postprocess.h>
+#include <assimp\Importer.hpp>
+#include <assimp\scene.h>
+#include <assimp\postprocess.h>
 
 // SOIL
-#include "SOIL2\SOIL2.h"
+#include <SOIL.h>
 
 class ModelHB
 {

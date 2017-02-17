@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Shader.h"
+#include <HB\shaderHB.h>
 
 // Std. Includes
 #include <string>
@@ -23,9 +23,9 @@ using namespace std;
 #include <glm/gtc/type_ptr.hpp>
 
 // asimp
-#include <Importer.hpp>
-#include <scene.h>
-#include <postprocess.h>
+#include <assimp\Importer.hpp>
+#include <assimp\scene.h>
+#include <assimp\postprocess.h>
 
 struct Vertex
 {

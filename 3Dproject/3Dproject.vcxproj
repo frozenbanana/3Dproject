@@ -121,6 +121,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="includes\HB\cameraHB.cpp" />
+    <ClCompile Include="includes\HB\meshHB.cpp" />
+    <ClCompile Include="includes\HB\modelHB.cpp" />
     <ClCompile Include="includes\JM\camJM.cpp" />
     <ClCompile Include="includes\JM\lightJM.cpp" />
     <ClCompile Include="includes\JM\meshJM.cpp" />
@@ -129,6 +132,10 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="includes\HB\cameraHB.h" />
+    <ClInclude Include="includes\HB\meshHB.h" />
+    <ClInclude Include="includes\HB\modelHB.h" />
+    <ClInclude Include="includes\HB\shaderHB.h" />
     <ClInclude Include="includes\JM\camJM.h" />
     <ClInclude Include="includes\JM\lightJM.h" />
     <ClInclude Include="includes\JM\meshJM.h" />

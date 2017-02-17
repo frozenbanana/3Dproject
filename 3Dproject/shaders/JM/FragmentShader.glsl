@@ -13,8 +13,8 @@ in vec4 gambcol;
 
 void main(){
 	//fragment_color = vec4(gcolor, 1.0f);
-	fragment_color = vec4(texture(texture_diffuse1, gtex));
+	//fragment_color = vec4(texture(texture_diffuse1, gtex));
 	//fragment_color = vec4(texture(texture_specular1, gtex));
 	//fragment_color = vec4(gtex, 1.0f, 0.0f);
-	//fragment_color = gdifcol;
+	fragment_color = gdifcol;
 }
