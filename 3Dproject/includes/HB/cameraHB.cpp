@@ -61,6 +61,11 @@
 		{
 			this->position += this->right * velocity;
 		}
+		
+		if (direction == UP)
+		{
+			this->position += this->up * velocity;
+		}
 	}
 
 	// Processes input received from a mouse input system. Expects the offset value in both the x and y direction.

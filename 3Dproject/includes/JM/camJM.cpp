@@ -76,3 +76,8 @@ void JMcamera::camMove(){
 	this->updateView();
 }
 
+// added by HB
+glm::vec3 JMcamera::getPosition()
+{
+	return camPos;
+}

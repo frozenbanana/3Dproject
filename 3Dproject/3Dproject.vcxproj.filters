@@ -208,5 +208,10 @@
     <None Include="shaders\JM\FragmentShader.glsl" />
     <None Include="shaders\JM\GeometryShader.glsl" />
     <None Include="shaders\JM\VertexShader.glsl" />
+    <None Include="shaders\HB\deferred_lightPass_vs.glsl" />
+    <None Include="shaders\HB\deferred_geoPass_frag.glsl" />
+    <None Include="shaders\HB\deferred_geoPass_vs.glsl" />
+    <None Include="shaders\HB\deferred_lightPass_frag.glsl" />
+    <None Include="includes\deferred_gBufferTester_frag.glsl" />
   </ItemGroup>
 </Project>

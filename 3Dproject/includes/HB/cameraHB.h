@@ -16,7 +16,8 @@ enum Camera_Movement
 	FORWARD,
 	BACKWARD,
 	LEFT,
-	RIGHT
+	RIGHT,
+	UP
 };
 
 // Default camera values
@@ -44,12 +45,12 @@ public:
 	// Processes input received from a mouse input system. Expects the offset value in both the x and y direction.
 	void ProcessMouseMovement(GLfloat xOffset, GLfloat yOffset, GLboolean constrainPitch = true);
 
-		// Processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
-		void ProcessMouseScroll(GLfloat yOffset);
-		GLfloat getZoom();
-		glm::vec3 getPosition();
-		glm::vec3 getFront();
-		glm::vec3 position;
+	// Processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
+	void ProcessMouseScroll(GLfloat yOffset);
+	GLfloat getZoom();
+	glm::vec3 getPosition();
+	glm::vec3 getFront();
+	glm::vec3 position;
 
 private:
 	// Camera Attributes
