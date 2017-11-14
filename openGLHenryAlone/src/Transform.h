@@ -15,7 +15,7 @@ public:
 	inline glm::mat4 GetModelMatrix() const
 	{
 		glm::mat4 posMatrix = glm::translate(this->m_pos);
-		glm::mat4 rotXMatrix = glm::rotate(this->m_rot.x, glm::vec3(1.0f,0.0,0.0));
+		glm::mat4 rotXMatrix = glm::rotate(this->m_rot.x, glm::vec3(10.0f,0.0,0.0));
 		glm::mat4 rotYMatrix = glm::rotate(this->m_rot.y, glm::vec3(0.0f,1.0,0.0));
 		glm::mat4 rotZMatrix = glm::rotate(this->m_rot.z, glm::vec3(0.0f,0.0,1.0));
 		glm::mat4 scaleMatrix = glm::scale(this->m_scale);
